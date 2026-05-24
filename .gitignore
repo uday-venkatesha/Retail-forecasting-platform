@@ -1,0 +1,35 @@
+# ---- Secrets (NEVER commit these) ----
+.env
+*.pem
+*.key
+credentials.json
+profiles.yml          # dbt connection file often holds passwords
+
+# ---- Data (too big / not source-of-truth for git) ----
+data/raw/*
+!data/raw/.gitkeep    # but DO keep the empty folder itself
+*.csv
+*.parquet
+*.duckdb
+
+# ---- Python ----
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# ---- dbt ----
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+
+# ---- Airflow ----
+airflow/logs/
+airflow/airflow.db
+
+# ---- OS / editor noise ----
+.DS_Store
+.vscode/
+.idea/
+data/raw/*

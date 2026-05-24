@@ -1,0 +1,13 @@
+# Core dependencies — pinned for reproducibility.
+# We add to this file as each phase introduces new tools.
+
+# --- Phase 1: data download & inspection ---
+pandas==2.2.3
+pyarrow==18.1.0          # fast Parquet read/write
+python-dotenv==1.0.1     # loads .env into environment variables
+
+# --- Phase 2: load into Postgres ---
+psycopg2-binary==2.9.10  # Postgres driver for Python
+sqlalchemy==2.0.36       # database toolkit / connection handling
+
+# --- (Phases 3-7 add: dbt-postgres, great-expectations, apache-airflow, etc.) ---
