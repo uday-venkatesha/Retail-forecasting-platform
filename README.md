@@ -122,3 +122,46 @@ it as a typed, compressed Parquet file — the "bronze" (raw, landed) layer.
 **Row-count reconciliation** — 6 chunks × 9,565,000 + 1 chunk × 937,370 =
 58,327,370 = 30,490 × 1,913. The arithmetic closing exactly confirms the melt
 neither dropped nor duplicated rows.
+
+
+### Phase 2 — Local warehouse & loading the bronze layer
+
+Stood up a containerized PostgreSQL warehouse and bulk-loaded the 58M-row bronze
+Parquet into it, verified by end-to-end row-count reconciliation.
+
+**What was built**
+- `docker-compose.yml` — defines Postgres 16 as a reproducible containerized
+  service: pinned image, credentials/port from `.env`, a named volume for
+  persistent data, and a healthcheck (`pg_isready`).
+- `ingestion/create_bronze_table.sql` — creates the `bronze` schema and the
+  typed `bronze.sales_long` table (TEXT identifiers, INTEGER units, NOT NULL
+  contracts). Idempotent via `DROP TABLE IF EXISTS`.
+- `ingestion/load_to_postgres.py` — bulk-loads the Parquet via Postgres `COPY`,
+  streaming in 1M-row batches (Parquet → pandas → in-memory CSV → COPY).
+
+**Verification (reconciliation)**
+- Row count in Postgres: 58,327,370 — matches the Parquet exactly.
+- Grain preserved: CA=4 stores, TX=3, WI=3 (matches Phase 1 profiling).
+- Value sanity: units_sold min=0, max=763, avg=1.126 (intermittent demand —
+  mostly zeros).
+
+**Why it matters**
+- *Docker = reproducible infrastructure (infra as code).* The database is
+  defined in a committed file, not hand-installed, so anyone gets an identical
+  warehouse with one command. Mirrors the cloud model: a warehouse is a
+  networked service you connect to with credentials.
+- *Named volumes separate compute from data.* The container is disposable; the
+  `pgdata` volume persists. Destroying the container doesn't lose the data.
+  (Snowflake decouples storage and compute for the same reason.)
+- *Port mapping + `.env` = adaptability.* Local 5432 was taken, so the host port
+  was changed to 5433 in ONE place (`.env`); the container's internal 5432 and
+  all code were untouched. Config-over-code in action.
+- *`COPY` vs row-by-row INSERT.* `COPY` bulk-streams data in batches, ~1–2 orders
+  of magnitude faster than per-row INSERTs (which pay round-trip overhead 58M
+  times). Snowflake's equivalent is `COPY INTO` from staged files.
+- *Why load into a DB at all (vs. querying Parquet)?* A warehouse is a networked
+  service with users, permissions, constraints (NOT NULL), and transactions.
+  The `with conn:` transaction makes the load atomic — it fully commits or fully
+  rolls back, never half-loads. A file can't offer that.
+- *Reconciliation is the basic trust check.* Matching row counts at both ends of
+  the pipeline prove no rows were lost or duplicated.
