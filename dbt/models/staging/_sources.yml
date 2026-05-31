@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: "Raw landed data loaded by the Python ingestion in Phase 2."
+    schema: bronze
+    tables:
+      - name: sales_long
+        description: "Item-store-day grain sales, melted from M5 wide format."
+      - name: calendar
+        description: "Date dimension. Maps d_1..d_1969 to real dates."
+      - name: sell_prices
+        description: "Weekly price per item per store."

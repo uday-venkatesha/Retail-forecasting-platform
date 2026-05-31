@@ -1,0 +1,37 @@
+# The dbt project manifest. Identifies this folder as a dbt project,
+# names it, declares directory layout, and sets default behaviors.
+
+name: 'retail_forecasting'
+version: '1.0.0'
+config-version: 2
+
+# Which profile (from ~/.dbt/profiles.yml) this project connects through.
+profile: 'retail_forecasting'
+
+# Where dbt looks for each kind of file. These are the defaults; listing
+# them explicitly is good practice so the project's structure is self-documenting.
+model-paths: ["models"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Where dbt writes its outputs. Both are gitignored.
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model-level defaults, organized by the medallion layers we'll build.
+# Each subfolder under models/ gets its own materialization strategy and schema.
+models:
+  retail_forecasting:
+    staging:
+      +materialized: view       # cheap: just a SELECT alias over bronze
+      +schema: staging
+    intermediate:
+      +materialized: table      # heavier joins, materialize once
+      +schema: intermediate
+    marts:
+      +materialized: table      # analysis-ready, materialized
+      +schema: marts
