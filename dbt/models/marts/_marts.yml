@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: dim_item
+    description: "Product dimension. One row per item."
+    columns:
+      - name: item_id
+        description: "Primary key — natural product identifier."
+        tests:
+          - unique
+          - not_null
+      - name: department
+        tests:
+          - not_null
+      - name: category
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['FOODS', 'HOBBIES', 'HOUSEHOLD']
+
+  - name: dim_store
+    description: "Store dimension. One row per store."
+    columns:
+      - name: store_id
+        tests:
+          - unique
+          - not_null
+      - name: state
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['CA', 'TX', 'WI']
+
+  - name: dim_date
+    description: "Date dimension. One row per calendar day."
+    columns:
+      - name: calendar_date
+        tests:
+          - unique
+          - not_null
+      - name: year
+        tests:
+          - not_null
+
+  - name: fct_sales_daily
+    description: "Fact table at item-store-day grain."
+    columns:
+      - name: item_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_item')
+              field: item_id
+      - name: store_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_store')
+              field: store_id
+      - name: calendar_date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: calendar_date
+      - name: units_sold
+        tests:
+          - not_null
