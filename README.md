@@ -165,3 +165,82 @@ Parquet into it, verified by end-to-end row-count reconciliation.
   rolls back, never half-loads. A file can't offer that.
 - *Reconciliation is the basic trust check.* Matching row counts at both ends of
   the pipeline prove no rows were lost or duplicated.
+
+  ### Phase 3 — dbt transformations: staging → intermediate → marts
+
+Built the full medallion architecture in dbt on top of the bronze layer:
+light staging views, a materialized intermediate fact, and a star-schema mart,
+with 20 automated data quality tests.
+
+**What was built**
+- **Staging layer** (views, in `dbt_staging` schema):
+  `stg_calendar`, `stg_sales_long`, `stg_sell_prices` — one-to-one over bronze,
+  renaming columns to consistent conventions, no joins.
+- **Intermediate layer** (table, `dbt_intermediate.int_sales_enriched`):
+  the heavy three-way join. Sales × calendar (real dates) × prices (revenue).
+  58.3M rows. Inner join to calendar (every sale must have a date), left join
+  to prices (preserves sales even when no price is published — ~21% of rows).
+- **Marts layer** (tables, `dbt_marts` schema, star schema):
+  `dim_item` (3,049 products), `dim_store` (10 stores), `dim_date` (1,969 days),
+  `fct_sales_daily` (58.3M sales). Fact + 3 dimensions joined by natural keys.
+- **dbt tests** (20 total, all passing):
+  3 `unique` on dim PKs · 11 `not_null` on required columns · 2 `accepted_values`
+  (categories, states) · 3 `relationships` (FK enforcement on fact → dim) ·
+  1 singular custom test (`no_negative_revenue`).
+- **`sources.yml`** declaring the bronze layer to dbt for `source()` references.
+- **`profiles.yml`** in `~/.dbt/` reading credentials from `env_var()` — never
+  in the repo. Same profile pattern will swap to Snowflake in Phase 6 with no
+  model changes.
+
+**Verification (real business question, answered through the star)**
+Top categories by state, 2015:
+- FOODS dominates every state ($24M total across CA/TX/WI)
+- HOUSEHOLD second ($13M); HOBBIES third ($5.9M)
+- CA leads every category (4 stores, also higher per-store revenue)
+- The hierarchy is consistent across states — a cross-check that joins are correct.
+
+**Why it matters**
+- *dbt is a SQL transformation framework, not a database.* It compiles SQL
+  templates, manages dependencies via `ref()`, issues DDL to the warehouse,
+  and exits. dbt runs on the developer's machine (or CI); transformations
+  execute inside the warehouse using the warehouse's compute. This is why
+  swapping Postgres for Snowflake later requires only a `profiles.yml` change.
+- *`ref()` builds the dependency graph automatically.* dbt knows what depends
+  on what and builds in the right order in parallel — no manual orchestration
+  inside dbt itself.
+- *Materialization is a deliberate cost vs. freshness tradeoff.* Views are free
+  to build and always fresh (and we pay on each query). Tables pay the build
+  cost once and downstream queries read cached results. Staging = views (cheap,
+  fresh); intermediate and marts = tables (pre-joined, fast to query).
+- *Star schema separates facts from descriptions.* Fact tables hold the
+  measurable events at the lowest grain. Dimensions hold the descriptive
+  attributes you slice by. Joins are on natural keys. This is the design that
+  retail analytics warehouses have used for decades because it scales: dims
+  are tiny and editable, facts are narrow and aggregable.
+- *Tests = automated trust.* `unique` + `not_null` + `relationships` +
+  `accepted_values` catch the majority of real data-quality issues. They run
+  every time the pipeline runs (in Airflow next), so the pipeline polices
+  itself rather than relying on humans to remember to check.
+
+**Operational lessons learned**
+- *dbt project name vs. folder name.* `dbt_project.yml`'s `name:` must match
+  Python identifier rules (no hyphens). The folder name on disk has no such
+  constraint. They don't need to match each other.
+- *`profiles.yml` is global per-user (`~/.dbt/profiles.yml`).* Multiple
+  projects' profiles coexist as top-level YAML keys. Use `env_var()` to read
+  secrets — never commit credentials.
+- *`set -a; source .env; set +a` loads `.env` into the shell* so dbt's
+  `env_var()` function can read them. Re-run per terminal session.
+- *Folder names must exactly match `dbt_project.yml`.* `mart` vs. `marts` will
+  silently fail with `[WARNING] does not match any enabled nodes`. The fix is
+  always on the filesystem, not in code.
+- *`dbt run` builds the warehouse; editing a file does not.* dbt's compilation
+  is offline; the warehouse only changes when you explicitly run.
+- *Recovery is a feature of the architecture.* When the Postgres volume
+  corrupted (twice, due to disk pressure), the recovery was: free space →
+  rebuild bronze from Parquet/CSV → `dbt run`. Total recovery time ~15 minutes,
+  zero data loss because raw stays untouched and transformations are
+  version-controlled. Backed up bronze with `pg_dump` so future recovery is
+  ~30 seconds.
+
+  
