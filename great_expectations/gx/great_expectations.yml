@@ -93,6 +93,9 @@ fluent_datasources:
           full:
             id: beca779c-da79-4bea-be86-904d698ec650
             partitioner:
+          bronze_sales_long_full:
+            id: dbd521c0-521b-44ed-913a-d3ca4b27221a
+            partitioner:
         table_name: sales_long
         schema_name: bronze
       bronze_calendar:
@@ -103,6 +106,9 @@ fluent_datasources:
           full:
             id: 3ea27b1c-31d9-4919-998c-b21489740100
             partitioner:
+          bronze_calendar_full:
+            id: 20c72374-bf26-451f-9e56-e88ac58bf718
+            partitioner:
         table_name: calendar
         schema_name: bronze
       bronze_sell_prices:
@@ -112,6 +118,9 @@ fluent_datasources:
         batch_definitions:
           full:
             id: 92eed065-0e20-4242-a819-adf247a3c9f0
+            partitioner:
+          bronze_sell_prices_full:
+            id: 3c074bf5-d364-4746-b386-6367f643019d
             partitioner:
         table_name: sell_prices
         schema_name: bronze

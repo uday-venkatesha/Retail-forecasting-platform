@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "543d8311-f4ac-46cc-8027-c4a434410156",
+      "name": "bronze_sales_long"
+    },
+    "batch_definition": {
+      "id": "dbd521c0-521b-44ed-913a-d3ca4b27221a",
+      "name": "bronze_sales_long_full"
+    },
+    "datasource": {
+      "id": "07d9227f-3ec1-4e23-841a-2050aaa917fa",
+      "name": "retail_warehouse"
+    }
+  },
+  "id": "4478e6d6-31f1-4845-bfda-4296ee97021f",
+  "name": "validate_bronze_sales_long",
+  "suite": {
+    "id": "bfb31155-40dc-4f4d-b000-4c3b8d8d12ef",
+    "name": "bronze_sales_long_suite"
+  }
+}

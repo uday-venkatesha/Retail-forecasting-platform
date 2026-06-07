@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "7147f6a1-b522-4996-a6e2-a7ba45fc22bc",
+      "name": "bronze_calendar"
+    },
+    "batch_definition": {
+      "id": "20c72374-bf26-451f-9e56-e88ac58bf718",
+      "name": "bronze_calendar_full"
+    },
+    "datasource": {
+      "id": "07d9227f-3ec1-4e23-841a-2050aaa917fa",
+      "name": "retail_warehouse"
+    }
+  },
+  "id": "4efd16af-e412-4d84-8702-b29973e72c44",
+  "name": "validate_bronze_calendar",
+  "suite": {
+    "id": "937e1b0c-18be-40b4-aaf4-e0528952c35d",
+    "name": "bronze_calendar_suite"
+  }
+}

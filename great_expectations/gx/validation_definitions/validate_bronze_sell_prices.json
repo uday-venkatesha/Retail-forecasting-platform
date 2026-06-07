@@ -1,0 +1,22 @@
+{
+  "data": {
+    "asset": {
+      "id": "db5b25fe-d885-472f-af96-c189736b6533",
+      "name": "bronze_sell_prices"
+    },
+    "batch_definition": {
+      "id": "3c074bf5-d364-4746-b386-6367f643019d",
+      "name": "bronze_sell_prices_full"
+    },
+    "datasource": {
+      "id": "07d9227f-3ec1-4e23-841a-2050aaa917fa",
+      "name": "retail_warehouse"
+    }
+  },
+  "id": "e1e6e52c-5497-429d-a7e2-4d32707c452d",
+  "name": "validate_bronze_sell_prices",
+  "suite": {
+    "id": "426321b2-d48e-4d79-8021-a8b4d061eb92",
+    "name": "bronze_sell_prices_suite"
+  }
+}

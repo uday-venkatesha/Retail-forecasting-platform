@@ -1,0 +1,26 @@
+{
+  "actions": [
+    {
+      "name": "update_data_docs",
+      "site_names": [],
+      "type": "update_data_docs"
+    }
+  ],
+  "id": "fb1f5335-4350-4c1b-8e9a-ac49c63420bc",
+  "name": "bronze_layer_checkpoint",
+  "result_format": "COMPLETE",
+  "validation_definitions": [
+    {
+      "id": "4efd16af-e412-4d84-8702-b29973e72c44",
+      "name": "validate_bronze_calendar"
+    },
+    {
+      "id": "4478e6d6-31f1-4845-bfda-4296ee97021f",
+      "name": "validate_bronze_sales_long"
+    },
+    {
+      "id": "e1e6e52c-5497-429d-a7e2-4d32707c452d",
+      "name": "validate_bronze_sell_prices"
+    }
+  ]
+}
