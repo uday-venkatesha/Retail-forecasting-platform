@@ -1,39 +1,68 @@
 """
-Reusable GX gate. Loads the local context and runs a named checkpoint.
-Raises on failure so callers can let the exception propagate (the right
-pattern for Airflow tasks — a raised exception fails the task cleanly).
+Load the bronze Parquet into Postgres using COPY (bulk load), streaming in
+batches so we never hold the full 58M rows in memory.
+
+After loading, runs the GX bronze layer checkpoint as a quality gate. If the
+gate fails, the script exits with a non-zero status so callers (Airflow, CI,
+shell pipelines) know the pipeline must not proceed.
 """
-import great_expectations as gx
+import io
+import os
+import sys
+import time
+import psycopg2
+import pyarrow.parquet as pq
+from dotenv import load_dotenv
 
-CONTEXT_DIR  = "great_expectations"
-CHECKPOINT   = "bronze_layer_checkpoint"
+from gx_gate import run_bronze_gate, GxGateFailure
+
+load_dotenv()
+
+PARQUET_PATH = "data/raw/sales_long.parquet"
+TARGET_TABLE = "bronze.sales_long"
+BATCH_ROWS = 1_000_000
+
+conn = psycopg2.connect(
+    host=os.environ["POSTGRES_HOST"],
+    port=os.environ["POSTGRES_PORT"],
+    dbname=os.environ["POSTGRES_DB"],
+    user=os.environ["POSTGRES_USER"],
+    password=os.environ["POSTGRES_PASSWORD"],
+)
 
 
-class GxGateFailure(Exception):
-    """Raised when a GX checkpoint fails — the pipeline should stop."""
+def copy_batch(cursor, table, df):
+    buf = io.StringIO()
+    df.to_csv(buf, index=False, header=False)
+    buf.seek(0)
+    cursor.copy_expert(f"COPY {table} FROM STDIN WITH (FORMAT csv)", buf)
 
 
-def run_bronze_gate() -> None:
-    """Run the bronze layer checkpoint. Raises GxGateFailure on any failure."""
-    context = gx.get_context(mode="file", project_root_dir=CONTEXT_DIR)
-    checkpoint = context.checkpoints.get(CHECKPOINT)
+def main():
+    # 1. Load Parquet into Postgres
+    pf = pq.ParquetFile(PARQUET_PATH)
+    cols = ["id","item_id","dept_id","cat_id","store_id","state_id","d","units_sold"]
 
-    print(f"\n--- Running GX checkpoint: {CHECKPOINT} ---")
-    result = checkpoint.run()
+    total = 0
+    start = time.time()
+    with conn:
+        with conn.cursor() as cur:
+            for batch in pf.iter_batches(batch_size=BATCH_ROWS, columns=cols):
+                df = batch.to_pandas()
+                copy_batch(cur, TARGET_TABLE, df)
+                total += len(df)
+                print(f"loaded {total:>12,} rows | {time.time()-start:6.1f}s")
 
-    # Summarize each suite's outcome
-    for _, run_result in result.run_results.items():
-        status = "PASS" if run_result.success else "FAIL"
-        n_exp = len(run_result.results)
-        print(f"  [{status}] {run_result.suite_name}: {n_exp} expectations")
+    conn.close()
+    print(f"\nLoad complete. {total:,} rows in {time.time()-start:.1f}s")
 
-    if not result.success:
-        failed_suites = [
-            r.suite_name for r in result.run_results.values() if not r.success
-        ]
-        raise GxGateFailure(
-            f"Bronze quality gate failed: {failed_suites}. "
-            f"Inspect Data Docs at great_expectations/gx/uncommitted/data_docs/local_site/index.html"
-        )
+    # 2. Run the GX quality gate
+    try:
+        run_bronze_gate()
+    except GxGateFailure as e:
+        print(f"\nPIPELINE HALTED: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    print(f"\n--- All {len(result.run_results)} suites passed. Pipeline may proceed. ---\n")
+
+if __name__ == "__main__":
+    main()

@@ -243,4 +243,92 @@ Top categories by state, 2015:
   version-controlled. Backed up bronze with `pg_dump` so future recovery is
   ~30 seconds.
 
-  
+### Phase 4 — Great Expectations: the data quality gate
+
+Built a contract-driven quality layer that validates the bronze tables before
+downstream models consume them. The pipeline now polices itself.
+
+**What was built**
+- `great_expectations/setup_context.py` — creates the GX FileDataContext,
+  registers Postgres as a Data Source (credentials from `.env`), and registers
+  the three bronze tables as Data Assets. Idempotent.
+- Three Expectation Suites, persisted as JSON in
+  `great_expectations/gx/expectations/`:
+  - `bronze_calendar_suite` (13 expectations): row count, column schema,
+    primary keys (date, d), value ranges (year, month, wday), SNAP flag
+    membership.
+  - `bronze_sales_long_suite` (16 expectations): row count band, schema, not-null
+    on every column, low-cardinality value sets (introspected from data:
+    3 categories, 3 states, 7 depts, 10 stores), `units_sold` range, `d` regex.
+  - `bronze_sell_prices_suite` (9 expectations): row count band, schema,
+    not-null on every column, store_id membership, wm_yr_wk range, sell_price
+    range.
+- `great_expectations/build_checkpoint.py` — defines `bronze_layer_checkpoint`,
+  a single named workflow that runs all three suites and updates Data Docs.
+  Result: one boolean pipeline gate, ~2 minutes wall time.
+- `ingestion/gx_gate.py` — reusable Python module. Exports `run_bronze_gate()`
+  which loads the context, runs the checkpoint, prints per-suite results, and
+  raises `GxGateFailure` if any suite fails. Reused by the loader (now) and the
+  Airflow DAG (Phase 5).
+- `ingestion/load_to_postgres.py` — modified to call `run_bronze_gate()` after
+  the COPY load completes. On gate failure: prints to stderr and exits 1. This
+  is the contract with callers (Airflow, CI, shell pipelines).
+- Data Docs site rendered to
+  `great_expectations/gx/uncommitted/data_docs/local_site/index.html` — static
+  HTML with browsable suites and a history of every validation run.
+
+**Verification (the pass → fail → pass arc)**
+1. Clean run: all 38 expectations pass across 3 suites. Pipeline proceeds.
+2. Injected one bad row violating multiple expectations (`cat_id=TEST_CAT`,
+   `state_id=XX`, `store_id=BAD_STORE`, `units_sold=-5`).
+3. Re-ran the gate: `bronze_sales_long_suite` failed, exception raised, the
+   script halted with non-zero exit. Calendar and prices still passed (gate is
+   granular per-table).
+4. Deleted the bad row, re-ran: all 38 expectations pass. Gate cleared.
+
+That sequence is the entire point of Phase 4: one bad row out of 58M+ was
+enough to halt the pipeline. The contract is sensitive enough to catch real
+anomalies, granular enough to point at the failing table, and integrated
+enough to surface in a single boolean any downstream component can react to.
+
+**Why it matters**
+- *GX runs at the ingestion boundary; dbt tests run after transformation.*
+  Together they form a complete data contract. GX catches source-side problems
+  (schema drift, value out of range, file shape) before bad data enters the
+  warehouse. dbt tests catch transformation-side problems (broken joins,
+  derived measures gone wrong) after models build. Different failure modes,
+  different layers.
+- *Expectations are version-controlled JSON.* The three `*_suite.json` files
+  in `gx/expectations/` are the contract — committable, reviewable, diffable.
+  Anyone who clones the project gets the same data quality assertions.
+- *Introspection-then-assert pattern.* For low-cardinality columns (cat_id,
+  state_id, dept_id, store_id), we read distinct values from Postgres first
+  and bake them into the suite. Same result as hardcoding for a static
+  dataset, but the technique is what scales: rebuild the contract from a
+  known-good baseline whenever the legitimate value set legitimately changes.
+- *Checkpoint = one gate, one boolean.* The checkpoint groups three suites
+  into a single named workflow. `result.success` is the pipeline's gate
+  signal: True → proceed, False → halt. This is what Airflow tasks check.
+- *Custom exception (`GxGateFailure`) over `sys.exit(1)`.* Exceptions
+  propagate through Python's call stack cleanly. Airflow handles them
+  naturally — a raised exception fails the task and halts downstream tasks.
+  `sys.exit` works for CLI scripts but is the wrong primitive inside a
+  reusable function.
+- *Data Docs = self-maintaining documentation.* Every run appends to the
+  validation history. Non-engineers can browse the site and understand the
+  data contract without reading code. This is the kind of artifact that
+  changes "data quality" from a vague claim into a visible, shared thing.
+
+**Operational lessons learned**
+- *GX 1.x is Python-first, not YAML-first.* All configuration lives in
+  Python scripts (`setup_context.py`, `build_*.py`). Older 0.18 tutorials
+  showing YAML configs and `great_expectations init` wizards do not apply.
+- *`project_root_dir` is the GX home, not its parent.* GX writes scaffolding
+  directly into the directory you point it at, plus a `gx/` subfolder for
+  internal state. Took two attempts to get the path right.
+- *`add_or_update` is idempotent for names, not for contents.* Adding the
+  same expectation twice creates two copies of it on the suite. Always reset
+  `suite.expectations = []` before re-adding in idempotent setup scripts.
+- *Validation time scales with row count, not violation count.* The same
+  ~2:10 to validate 58M rows whether 0 or 1 row violated. Per-metric SQL
+  scans dominate.
