@@ -89,6 +89,10 @@ fluent_datasources:
         type: table
         id: 543d8311-f4ac-46cc-8027-c4a434410156
         batch_metadata: {}
+        batch_definitions:
+          full:
+            id: beca779c-da79-4bea-be86-904d698ec650
+            partitioner:
         table_name: sales_long
         schema_name: bronze
       bronze_calendar:
@@ -105,6 +109,10 @@ fluent_datasources:
         type: table
         id: db5b25fe-d885-472f-af96-c189736b6533
         batch_metadata: {}
+        batch_definitions:
+          full:
+            id: 92eed065-0e20-4242-a819-adf247a3c9f0
+            partitioner:
         table_name: sell_prices
         schema_name: bronze
     connection_string: 

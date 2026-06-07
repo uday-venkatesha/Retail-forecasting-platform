@@ -1,0 +1,198 @@
+{
+  "expectations": [
+    {
+      "id": "78769b0f-6e5a-4101-84c6-9a2bdfa71e49",
+      "kwargs": {
+        "max_value": 70000000,
+        "min_value": 50000000
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_row_count_to_be_between"
+    },
+    {
+      "id": "3bae991e-6180-4a2d-8eb3-c583fdc5bc1e",
+      "kwargs": {
+        "column_set": [
+          "id",
+          "item_id",
+          "dept_id",
+          "cat_id",
+          "store_id",
+          "state_id",
+          "d",
+          "units_sold"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_columns_to_match_set"
+    },
+    {
+      "id": "d42d61c5-273f-40a2-a3b8-3e7e278ea6ec",
+      "kwargs": {
+        "column": "id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "e928132c-9282-4328-87d6-1c31d2dd464b",
+      "kwargs": {
+        "column": "item_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "924b0c35-16c8-43e0-b1fb-68bcead862ae",
+      "kwargs": {
+        "column": "dept_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "15832492-c297-425b-98d1-e382e0ff1dc7",
+      "kwargs": {
+        "column": "cat_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "4047c445-680e-47f6-bd8a-782a63008b92",
+      "kwargs": {
+        "column": "store_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "b30a3220-8825-4c48-a3f9-623215f0ea4c",
+      "kwargs": {
+        "column": "state_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "20b99d3f-77df-4707-baad-694bf9ceaf56",
+      "kwargs": {
+        "column": "d"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "3533fb06-68b2-42a8-adec-d2cb92f78d69",
+      "kwargs": {
+        "column": "units_sold"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "857ce4b0-7964-4cfa-b4ae-9635c62a865f",
+      "kwargs": {
+        "column": "cat_id",
+        "value_set": [
+          "FOODS",
+          "HOBBIES",
+          "HOUSEHOLD"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "b90b23b3-cc44-40f1-a857-617345b55123",
+      "kwargs": {
+        "column": "state_id",
+        "value_set": [
+          "CA",
+          "TX",
+          "WI"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "9a9e0e70-228b-4acd-b5c6-15d6dfc2ce1f",
+      "kwargs": {
+        "column": "dept_id",
+        "value_set": [
+          "FOODS_1",
+          "FOODS_2",
+          "FOODS_3",
+          "HOBBIES_1",
+          "HOBBIES_2",
+          "HOUSEHOLD_1",
+          "HOUSEHOLD_2"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "ab2ec47b-672a-4d2a-9483-160e129aba60",
+      "kwargs": {
+        "column": "store_id",
+        "value_set": [
+          "CA_1",
+          "CA_2",
+          "CA_3",
+          "CA_4",
+          "TX_1",
+          "TX_2",
+          "TX_3",
+          "WI_1",
+          "WI_2",
+          "WI_3"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "09b03de4-f3dc-4c3f-b4c4-de42dd19e162",
+      "kwargs": {
+        "column": "units_sold",
+        "max_value": 10000.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "ea02fd02-8ec0-4573-9b1b-f41fced347f9",
+      "kwargs": {
+        "column": "d",
+        "regex": "^d_\\d+$"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_match_regex"
+    }
+  ],
+  "id": "bfb31155-40dc-4f4d-b000-4c3b8d8d12ef",
+  "meta": {
+    "great_expectations_version": "1.17.2"
+  },
+  "name": "bronze_sales_long_suite",
+  "notes": null
+}

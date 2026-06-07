@@ -1,0 +1,113 @@
+{
+  "expectations": [
+    {
+      "id": "19d0d5e1-07c0-4f69-a94b-02f99599ffbc",
+      "kwargs": {
+        "max_value": 7500000,
+        "min_value": 6000000
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_row_count_to_be_between"
+    },
+    {
+      "id": "3f039392-4cf3-4f37-9176-955e245f0acb",
+      "kwargs": {
+        "column_set": [
+          "store_id",
+          "item_id",
+          "wm_yr_wk",
+          "sell_price"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_columns_to_match_set"
+    },
+    {
+      "id": "33891578-7f97-472b-b81a-d6fe97016bd4",
+      "kwargs": {
+        "column": "store_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "5f043470-1c6c-4c98-b57b-d77a6351adfe",
+      "kwargs": {
+        "column": "item_id"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "8485f24a-2fce-4553-85b0-84624736369f",
+      "kwargs": {
+        "column": "wm_yr_wk"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "1df3e432-4c92-41f0-82d0-690645e593c4",
+      "kwargs": {
+        "column": "sell_price"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "6d2ffd8d-26d3-4ced-a558-853a5b07c042",
+      "kwargs": {
+        "column": "store_id",
+        "value_set": [
+          "CA_1",
+          "CA_2",
+          "CA_3",
+          "CA_4",
+          "TX_1",
+          "TX_2",
+          "TX_3",
+          "WI_1",
+          "WI_2",
+          "WI_3"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "53187f98-4008-4614-a592-5a9ef3624628",
+      "kwargs": {
+        "column": "wm_yr_wk",
+        "max_value": 17600.0,
+        "min_value": 11101.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "a99dc087-0af8-4b82-ad57-ab4d8d4f8901",
+      "kwargs": {
+        "column": "sell_price",
+        "max_value": 500.0,
+        "min_value": 0.01
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    }
+  ],
+  "id": "426321b2-d48e-4d79-8021-a8b4d061eb92",
+  "meta": {
+    "great_expectations_version": "1.17.2"
+  },
+  "name": "bronze_sell_prices_suite",
+  "notes": null
+}
