@@ -1,0 +1,170 @@
+{
+  "expectations": [
+    {
+      "id": "368fad32-d225-42e6-80b0-bc0d2e549f00",
+      "kwargs": {
+        "max_value": 2000,
+        "min_value": 1900
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_row_count_to_be_between"
+    },
+    {
+      "id": "2a06a36e-8007-4173-826e-f56baee603e8",
+      "kwargs": {
+        "column_set": [
+          "date",
+          "wm_yr_wk",
+          "weekday",
+          "wday",
+          "month",
+          "year",
+          "d",
+          "event_name_1",
+          "event_type_1",
+          "event_name_2",
+          "event_type_2",
+          "snap_ca",
+          "snap_tx",
+          "snap_wi"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_columns_to_match_set"
+    },
+    {
+      "id": "1aecfe98-9aa4-4489-a7a1-fa95cd3715b4",
+      "kwargs": {
+        "column": "date"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "84339f31-89c3-4b5a-a1fe-16b596da4e5d",
+      "kwargs": {
+        "column": "date"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_unique"
+    },
+    {
+      "id": "fe7553e0-b011-4fba-964e-8cc1dbd96447",
+      "kwargs": {
+        "column": "d"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "0ef00877-1200-47e6-8b79-dc8ac26aefd7",
+      "kwargs": {
+        "column": "d"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_unique"
+    },
+    {
+      "id": "2279ae80-5d39-45b0-b07d-72b2b16a511e",
+      "kwargs": {
+        "column": "year",
+        "max_value": 2017.0,
+        "min_value": 2011.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "6e616d66-a03e-4004-b6a6-bfc5e67c9226",
+      "kwargs": {
+        "column": "month",
+        "max_value": 12.0,
+        "min_value": 1.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "b7d6acb6-e2b9-405b-9773-1edbe18eb18b",
+      "kwargs": {
+        "column": "wday",
+        "max_value": 7.0,
+        "min_value": 1.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "257a11a8-b057-4dd0-ac20-2257ae1ef1e5",
+      "kwargs": {
+        "column": "weekday",
+        "value_set": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "0a970894-fec0-4de5-90e4-4f4f3ec4c8c6",
+      "kwargs": {
+        "column": "snap_ca",
+        "value_set": [
+          0,
+          1
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "1999709a-be42-495c-ad7c-bcdd04be5bfe",
+      "kwargs": {
+        "column": "snap_tx",
+        "value_set": [
+          0,
+          1
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "79accbfb-18c8-4398-b96b-09e54d44b7f5",
+      "kwargs": {
+        "column": "snap_wi",
+        "value_set": [
+          0,
+          1
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    }
+  ],
+  "id": "937e1b0c-18be-40b4-aaf4-e0528952c35d",
+  "meta": {
+    "great_expectations_version": "1.17.2"
+  },
+  "name": "bronze_calendar_suite",
+  "notes": null
+}

@@ -83,27 +83,31 @@ data_docs_sites:
 fluent_datasources:
   retail_warehouse:
     type: postgres
-    id: 65b43917-a6d3-4a93-81fe-aa67b2522d1c
+    id: 07d9227f-3ec1-4e23-841a-2050aaa917fa
     assets:
       bronze_sales_long:
         type: table
-        id: 66faf8c0-e95d-416b-a933-86f536d3d86b
+        id: 543d8311-f4ac-46cc-8027-c4a434410156
         batch_metadata: {}
         table_name: sales_long
         schema_name: bronze
       bronze_calendar:
         type: table
-        id: 23bd8fb8-d446-4a77-9b20-b245a64ce018
+        id: 7147f6a1-b522-4996-a6e2-a7ba45fc22bc
         batch_metadata: {}
+        batch_definitions:
+          full:
+            id: 3ea27b1c-31d9-4919-998c-b21489740100
+            partitioner:
         table_name: calendar
         schema_name: bronze
       bronze_sell_prices:
         type: table
-        id: d8a998f6-8de9-45f9-9df7-86b1e4fd6e5d
+        id: db5b25fe-d885-472f-af96-c189736b6533
         batch_metadata: {}
         table_name: sell_prices
         schema_name: bronze
     connection_string: 
       postgresql+psycopg2://dw_user:retail_local_pw@localhost:5433/retail_dw
 analytics_enabled:
-data_context_id: 4889baa2-361a-4c6e-8f82-c1fdf178afd5
+data_context_id: dc987b3f-c39f-4692-9021-b9a856dd8b71
