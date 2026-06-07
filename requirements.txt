@@ -11,3 +11,5 @@ psycopg2-binary==2.9.10  # Postgres driver for Python
 sqlalchemy==2.0.36       # database toolkit / connection handling
 
 # --- (Phases 3-7 add: dbt-postgres, great-expectations, apache-airflow, etc.) ---
+# --- Phase 4: data quality ---
+great_expectations[postgresql]==1.17.2
